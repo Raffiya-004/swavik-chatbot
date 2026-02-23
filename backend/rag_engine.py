@@ -1,28 +1,25 @@
 import os
 from dotenv import load_dotenv
 
-# 1. CORE LANGCHAIN IMPORTS
+# CORE LANGCHAIN IMPORTS
 from langchain_groq import ChatGroq
 from langchain_huggingface import HuggingFaceEmbeddings
 from langchain_community.vectorstores import FAISS
 from langchain_community.document_loaders import DirectoryLoader, CSVLoader
-from langchain_text_splitters import RecursiveCharacterTextSplitter
+from langchain_text_splitters import RecursiveCharacterTextSplitter # Fixed typo here
 
 load_dotenv()
 
-# --- CONFIGURATION ---
 DATA_PATH = "data/"
 DB_PATH = "vector_store/faiss_index"
 
-# 1. Initialize FREE local embeddings
 embeddings = HuggingFaceEmbeddings(model_name="all-MiniLM-L6-v2")
 
-# 2. Initialize Groq LLM with Clean Key
 raw_key = os.getenv("GROQ_API_KEY")
 clean_key = raw_key.strip() if raw_key else None
 
 llm = ChatGroq(
-    temperature=0.2, # Slightly increased for more natural, detailed flow
+    temperature=0.0, # Reduced to 0 for strict factual accuracy
     groq_api_key=clean_key,
     model_name="llama-3.3-70b-versatile"
 )
@@ -31,17 +28,17 @@ def ingest_docs():
     """Reads CSVs and builds the searchable vector database."""
     if not os.path.exists(DATA_PATH):
         os.makedirs(DATA_PATH)
-        return "Data folder created. Please add CSV files."
+        return "Data folder created."
 
-    # Using CSVLoader directly for better row preservation
+    # Load CSVs
     loader = DirectoryLoader(DATA_PATH, glob="*.csv", loader_cls=CSVLoader)
     documents = loader.load()
 
     if not documents:
-        return "No CSV files found to index."
+        return "No CSV files found."
 
-    # Increased chunk size for richer context per chunk
-    text_splitter = RecursiveCharacterCharacterSplitter(chunk_size=1200, chunk_overlap=150)
+    # Optimized splitting: Smaller chunks with more overlap keeps rows together better
+    text_splitter = RecursiveCharacterTextSplitter(chunk_size=100, chunk_overlap=25)
     texts = text_splitter.split_documents(documents)
 
     vectorstore = FAISS.from_documents(texts, embeddings)
@@ -51,30 +48,30 @@ def ingest_docs():
     return f"Success! Indexed {len(documents)} rows."
 
 def get_response(query: str):
-    """Retrieves context and generates a DETAILED AI answer."""
+    """Retrieves context and generates a STRICT HR answer."""
     if not os.path.exists(DB_PATH):
         return {"answer": "Knowledge base empty. Please upload documents.", "sources": []}
 
     vectorstore = FAISS.load_local(DB_PATH, embeddings, allow_dangerous_deserialization=True)
     
-    # INCREASED k to 10 for more detailed source material
-    docs = vectorstore.as_retriever(search_kwargs={"k": 10}).invoke(query)
+    # Retrieve top 5 most relevant snippets
+    docs = vectorstore.as_retriever(search_kwargs={"k": 20}).invoke(query)
     
     if not docs:
         return {"answer": "I couldn't find information on that in our records.", "sources": []}
 
     context = "\n\n".join([doc.page_content for doc in docs])
 
-    # ENHANCED PROMPT FOR LONGER ANSWERS
+    # REFINED PROMPT: Forcing the AI to use ONLY the provided context
     prompt = f"""
-    You are the Senior HR Assistant for Swavik. Your goal is to provide comprehensive, professional, and detailed answers.
+    You are the Senior HR Assistant for Swavik. 
     
-    INSTRUCTIONS:
-    - Use the context below to answer the question thoroughly.
-    - If the policy contains multiple rules or steps, use bullet points.
-    - Provide a "Summary" and a "Detailed Breakdown" if applicable.
-    - If the answer is not in the context, say 'I do not have information on this policy in my current database.'
-    
+    STRICT RULES:
+    1. Answer ONLY using the provided Context below.
+    2. If the answer (like specific working days) is NOT in the context, state: "I do not have information on the specific number of working days in my database. Please contact HR."
+    3. Do NOT provide general calendar information or "typical" month data.
+    4. Format with a 'Summary' and 'Detailed Breakdown'.
+
     Context:
     {context}
     
