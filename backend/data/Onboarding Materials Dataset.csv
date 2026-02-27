@@ -1,0 +1,21 @@
+Onboarding_ID,Module_Name,Step_Number,Resource_Type,Description,Link_Location,Duration,Completion_Deadline
+ONB001,Pre-onboarding Checklist,1,Document,Complete all pre-joining formalities including background verification and document submission.,HR Portal > New Hire > Pre-joining,2 days,Before Day 1
+ONB002,Day 1 Welcome,2,Video,"Welcome video from CEO introducing company culture, mission, and values at Swavik.",Learning Portal > Onboarding > Welcome,30 minutes,Day 1
+ONB003,HR Induction,3,Presentation,"HR presentation covering company policies, leave structure, and employee benefits in detail.",HR Portal > Induction > Benefits,2 hours,Week 1
+ONB004,IT Setup,4,Guide,"Step-by-step guide for laptop setup, email configuration, and software installation instructions.",IT Portal > New Hire > Setup,4 hours,Day 2
+ONB005,Company Overview,5,E-learning,"Interactive module covering company history, organizational structure, and key business units.",Learning Portal > Company > Overview,1 hour,Week 1
+ONB006,Introduction to Teams,6,Session,Meet your team members through scheduled introduction calls with department colleagues.,Calendar Invite > Team Meeting,1 hour,Week 1
+ONB007,Policies Acknowledgment,7,Form,Review and acknowledge receipt of employee handbook and key company policies.,HR Portal > Documents > Acknowledgment,1 hour,Week 1
+ONB008,Buddy Assignment,8,Information,You have been assigned a buddy who will guide you through your first month at Swavik.,HR Portal > Buddy > Details,15 minutes,Week 1
+ONB009,Role-specific Training,9,E-learning,Department-specific training modules relevant to your role and responsibilities.,Learning Portal > Role > Training,4 hours,Week 2
+ONB010,Systems Access,10,Guide,"Access credentials for various internal systems - ERP, CRM, HR portal, and communication tools.",IT Portal > Access > Credentials,30 minutes,Week 1
+ONB011,Security Training,11,E-learning,Mandatory cybersecurity awareness training covering data protection and safe practices.,Learning Portal > Security > Training,2 hours,Week 2
+ONB012,Benefits Enrollment,12,Task,"Enroll in health insurance, 401k/Provident Fund, and other voluntary benefits.",HR Portal > Benefits > Enrollment,1 hour,Week 2
+ONB013,Introduction to Tools,13,Workshop,"Hands-on session on using company tools - Slack, Jira, Confluence, and internal systems.",Training Room > Tools > Workshop,3 hours,Week 2
+ONB014,First Week Check-in,14,Meeting,30-day check-in with HR to address any questions and ensure smooth onboarding progress.,Calendar Invite > HR > Check-in,30 minutes,Week 1 End
+ONB015,Department Processes,15,Document,"Detailed documentation of department-specific processes, workflows, and standard operating procedures.",Confluence > Department > SOPs,3 hours,Week 3
+ONB016,Project Introduction,16,Meeting,"Introduction to current projects, clients, and ongoing work in your team with context.",Team Lead > Project > Overview,1 hour,Week 2
+ONB017,Compliance Training,17,E-learning,"Mandatory compliance modules including ethics, anti-harassment, and data privacy training.",Learning Portal > Compliance > Training,3 hours,Month 1
+ONB018,Goal Setting,18,Workshop,Session on setting SMART goals for the first 90 days with your manager's guidance.,Manager > Goals > Workshop,2 hours,Week 3
+ONB019,30-Day Review,19,Meeting,"First formal review discussing progress, challenges, and feedback after first month.",HR Portal > Review > 30-Day,1 hour,Month 1
+ONB020,Social Integration,20,Event,Welcome lunch with team and invitation to company social events and employee resource groups.,HR > Events > Welcome,2 hours,Month 1

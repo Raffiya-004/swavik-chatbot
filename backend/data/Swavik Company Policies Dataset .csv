@@ -1,0 +1,81 @@
+Policy_ID,Category,Policy_Name,Effective_Date,Description,Key_Points,Applicable_To
+POL001,Leave Policy,Annual Leave Entitlement,01-01-2024,Regular employees are entitled to 15 paid leaves per calendar year. Leaves can be carried forward up to 5 days to next year.,"- 15 leaves per year
+- 5 days max carry forward
+- Requires 2 days advance notice
+- Cannot accumulate beyond 20 days",All permanent employees
+POL002,Leave Policy,Sick Leave Policy,01-01-2024,Employees get 12 paid sick leaves annually. Medical certificate required for leaves exceeding 2 consecutive days.,"- 12 sick leaves per year
+- Doctor's note for >2 days
+- Unused sick leaves lapse yearly
+- COVID-19 leaves separate",All employees
+POL003,Work Hours,Core Working Hours,01-01-2024,Core working hours are 10:00 AM to 4:00 PM. Flexible timing allowed outside these hours with manager approval.,"- Core hours: 10 AM - 4 PM
+- 9-hour day including 1-hour break
+- Minimum 40 hours per week
+- Flexi-timing available",All employees
+POL004,Remote Work,Work From Home Policy,01-01-2024,Employees can work from home up to 2 days per week. Requires manager approval and must maintain productivity.,"- 2 WFH days per week maximum
+- Must be available during core hours
+- Internet speed >50 Mbps required
+- Monthly WFH report required",Eligible employees
+POL005,Dress Code,Professional Attire Policy,01-01-2024,Business casual attire required. Formal wear on client meetings and Fridays are casual days.,"- Business casual: Mon-Thu
+- Casual Fridays allowed
+- Client meetings: Formal wear
+- No flip-flops or shorts",All employees
+POL006,Travel,Travel Reimbursement,01-01-2024,"Business travel expenses reimbursed within 15 days. Economy class for flights <5 hours, business class for longer.","- Economy for <5 hour flights
+- Business class for long haul
+- Daily allowance: $50
+- Receipts mandatory for >$25",All traveling employees
+POL007,Training,Learning & Development,01-01-2024,Annual training budget of $1000 per employee. Must be job-related and approved by manager.,"- $1000 annual budget
+- Must complete 40 hours training/year
+- Certification reimbursement available
+- LinkedIn Learning access provided",All employees
+POL008,Ethics,Code of Conduct,01-01-2024,All employees must adhere to ethical business practices. No gifts >$50 from vendors. Annual ethics training mandatory.,"- No gifts >$50 value
+- Annual ethics certification
+- Conflict of interest disclosure
+- Confidentiality agreement binding",All employees
+POL009,IT Policy,Internet Usage Policy,01-01-2024,Company internet for business use primarily. Limited personal use allowed. No streaming or downloading unauthorized content.,"- Personal use <2 hours/week
+- No streaming or gaming
+- Software installation requires IT approval
+- VPN mandatory for remote work",All employees
+POL010,Performance,Bonus Structure,01-01-2024,Annual performance bonus up to 20% of CTC. Based on individual and company performance metrics.,"- Up to 20% of annual salary
+- Paid in March every year
+- 50% individual + 50% company perf
+- Minimum 6 months service required",All confirmed employees
+POL011,Leave Policy,Maternity Leave,01-01-2024,26 weeks paid maternity leave. Additional 4 weeks unpaid leave available if needed.,"- 26 weeks paid leave
+- Can start 4 weeks before due date
+- Flexible return options available
+- Lactation breaks post-return",Female employees
+POL012,Leave Policy,Paternity Leave,01-01-2024,2 weeks paid paternity leave. Must be taken within 6 months of child birth.,"- 2 weeks (10 working days)
+- Take within 6 months of birth
+- Flexible scheduling allowed
+- Adoption covered same policy",Male employees
+POL013,Health,Medical Insurance,01-01-2024,"Comprehensive health insurance coverage of $100,000 per year. Covers employee and immediate family.","- $100k annual coverage
+- Pre-existing conditions covered
+- Dental & vision included
+- Cashless hospitalization available",All employees + family
+POL014,Retirement,Provident Fund,01-01-2024,12% basic salary contributed to PF. Voluntary contributions up to additional 10% allowed.,"- Mandatory 12% PF contribution
+- Option for higher contribution
+- Withdrawal allowed after 2 years
+- Interest rate ~8.5% annually",All permanent employees
+POL015,Grievance,Grievance Redressal,01-01-2024,Formal process for workplace concerns. Anonymous reporting option available. Resolution within 21 days.,"- Anonymous reporting allowed
+- Resolution within 21 days
+- No retaliation policy
+- Escalation to HR committee",All employees
+POL016,Leave Policy,Bereavement Leave,01-01-2024,5 days paid leave in case of immediate family demise. Additional 2 days for travel if required.,"- 5 days for immediate family
+- 2 extra days for outstation travel
+- Immediate family: spouse, parents, children, siblings
+- Document required",All employees
+POL017,Allowances,Special Allowances,01-01-2024,"Monthly allowances include: $150 communication, $100 internet, $200 transport for eligible roles.","- $150 phone/internet reimbursement
+- $200 transport allowance
+- $100 meal card
+- Applicable for specific roles",Specific role employees
+POL018,Probation,Probation Period,01-01-2024,6 months probation period for new hires. Performance review at 3 and 6 months. Extension possible up to 3 months.,"- 6 months standard probation
+- Reviews at month 3 and 6
+- Maximum 3 months extension
+- Confirmation requires manager approval",New hires
+POL019,Resignation,Notice Period,01-01-2024,90 days notice period for all permanent employees. Buyout option available with management approval.,"- 90 days notice period
+- Buyout: 3 months salary
+- Garden leave possible
+- Non-compete clause applies",All permanent employees
+POL020,Holidays,Floating Holiday Policy,01-01-2024,2 floating holidays per year. Can be used for any personal observance. Must be planned 2 weeks in advance.,"- 2 floating days annually
+- Book 2 weeks in advance
+- Cannot carry forward
+- Available after probation",All confirmed employees

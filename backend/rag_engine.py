@@ -1,11 +1,10 @@
 import os
 from dotenv import load_dotenv
 
-from langchain_groq import ChatGroq
+from langchain_google_genai import ChatGoogleGenerativeAI 
 from langchain_huggingface import HuggingFaceEmbeddings
 from langchain_community.vectorstores import FAISS
 from langchain_community.document_loaders import CSVLoader
-from langchain_text_splitters import RecursiveCharacterTextSplitter
 
 load_dotenv()
 
@@ -14,13 +13,13 @@ DB_PATH = "vector_store/faiss_index"
 
 embeddings = HuggingFaceEmbeddings(model_name="all-MiniLM-L6-v2")
 
-raw_key = os.getenv("GROQ_API_KEY")
+raw_key = os.getenv("GOOGLE_API_KEY")
 clean_key = raw_key.strip() if raw_key else None
 
-llm = ChatGroq(
+llm = ChatGoogleGenerativeAI(
+    model="gemini-2.5-flash", # Note: Updated to 2.0-flash as it is the current generation
     temperature=0.0,
-    groq_api_key=clean_key,
-    model_name="llama-3.3-70b-versatile"
+    google_api_key=clean_key
 )
 
 
@@ -51,24 +50,22 @@ def ingest_docs():
     if not all_documents:
         return "No CSV files found."
 
-    text_splitter = RecursiveCharacterTextSplitter(
-        chunk_size=100,
-        chunk_overlap=20,
-        separators=["\n\n", "\n", ",", " "],
-    )
-    texts = text_splitter.split_documents(all_documents)
+    # FIX 1: Removed the RecursiveCharacterTextSplitter. 
+    # For CSVs, keeping 1 row = 1 document preserves the context perfectly.
 
-    for text in texts:
+    # Format the documents with their source
+    for doc in all_documents:
         source_file = os.path.basename(
-            text.metadata.get("source", "Unknown")
+            doc.metadata.get("source", "Unknown")
         )
-        text.page_content = f"[Source: {source_file}]\n{text.page_content}"
+        doc.page_content = f"[Source: {source_file}]\n{doc.page_content}"
 
-    vectorstore = FAISS.from_documents(texts, embeddings)
+    # Ingest the full rows directly into FAISS
+    vectorstore = FAISS.from_documents(all_documents, embeddings)
     os.makedirs("vector_store", exist_ok=True)
     vectorstore.save_local(DB_PATH)
 
-    return f"Indexed {len(all_documents)} rows into {len(texts)} chunks."
+    return f"Indexed {len(all_documents)} complete rows."
 
 
 def get_response(query: str):
@@ -82,9 +79,11 @@ def get_response(query: str):
         DB_PATH, embeddings, allow_dangerous_deserialization=True
     )
 
+    # FIX 2: Changed to similarity search and increased 'k' to 30.
+    # This ensures the DB pulls up to 30 rows, easily covering your 20 policies.
     retriever = vectorstore.as_retriever(
-        search_type="mmr",
-        search_kwargs={"k": 20, "fetch_k": 25, "lambda_mult": 0.7},
+        search_type="similarity",
+        search_kwargs={"k": 30}
     )
 
     docs = retriever.invoke(query)
@@ -100,7 +99,7 @@ def get_response(query: str):
         source = os.path.basename(doc.metadata.get("source", "Unknown"))
         row_num = doc.metadata.get("row", "N/A")
         context_parts.append(
-            f"--- Chunk {i+1} (Source: {source}, Row: {row_num}) ---\n"
+            f"--- Document {i+1} (Source: {source}, Row: {row_num}) ---\n"
             f"{doc.page_content}\n"
         )
 
@@ -125,6 +124,7 @@ QUESTION: {query}
 RESPONSE (use Summary + Details + Source format):"""
 
     response = llm.invoke(prompt)
+    
     sources = list(
         set(
             os.path.basename(doc.metadata.get("source", "Unknown"))
