@@ -10,6 +10,7 @@ import DashboardPage from "./pages/Dashboard";
 import ChatPage from "./pages/Chat";
 import UploadPage from "./pages/Upload";
 import AnalyticsPage from "./pages/Analytics";
+import FeedbackPage from "./pages/Feedback";
 
 export default function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
@@ -22,7 +23,7 @@ export default function App() {
   const [chatHistory, setChatHistory] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
 
-  const fetchStats = () => { axios.get(`${API_BASE}/stats`).then((res) => setStats(res.data)).catch(() => {}); };
+  const fetchStats = () => { axios.get(`${API_BASE}/stats`).then((res) => setStats(res.data)).catch(() => { }); };
 
   useEffect(() => {
     if (isLoggedIn) {
@@ -79,6 +80,7 @@ export default function App() {
         {activeTab === "chat" && <ChatPage chatHistory={chatHistory} setChatHistory={setChatHistory} isLoading={isLoading} setIsLoading={setIsLoading} onFirstMessage={handleFirstMessage} />}
         {activeTab === "upload" && <UploadPage onUploadComplete={fetchStats} />}
         {activeTab === "analytics" && <AnalyticsPage stats={stats} />}
+        {activeTab === "feedback" && <FeedbackPage username={username} />}
       </main>
     </div>
   );

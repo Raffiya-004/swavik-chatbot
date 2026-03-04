@@ -8,6 +8,7 @@ export default function Sidebar({ activeTab, setActiveTab, username, profileImg,
     { id: "chat", label: "RAG Chatbot", emoji: "🤖" },
     { id: "upload", label: "Document Manager", emoji: "📁" },
     { id: "analytics", label: "Analytics", emoji: "📈" },
+    { id: "feedback", label: "Feedback", emoji: "💬" },
   ];
 
   return (
@@ -41,8 +42,8 @@ export default function Sidebar({ activeTab, setActiveTab, username, profileImg,
           return (
             <button key={item.id} onClick={() => setActiveTab(item.id)}
               style={{ width: "100%", display: "flex", alignItems: "center", gap: "10px", padding: "12px 14px", borderRadius: "12px", border: "none", cursor: "pointer", transition: "all 0.2s", background: isActive ? COLORS.gradientPrimary : "transparent", color: isActive ? "white" : COLORS.textSecondary, fontWeight: isActive ? 700 : 500, fontSize: "13px", boxShadow: isActive ? `0 6px 20px ${COLORS.purpleGlow}` : "none" }}
-              onMouseEnter={(e) => { if (!isActive) { e.currentTarget.style.background = COLORS.bgActive; e.currentTarget.style.color = COLORS.purpleLight; }}}
-              onMouseLeave={(e) => { if (!isActive) { e.currentTarget.style.background = "transparent"; e.currentTarget.style.color = COLORS.textSecondary; }}}>
+              onMouseEnter={(e) => { if (!isActive) { e.currentTarget.style.background = COLORS.bgActive; e.currentTarget.style.color = COLORS.purpleLight; } }}
+              onMouseLeave={(e) => { if (!isActive) { e.currentTarget.style.background = "transparent"; e.currentTarget.style.color = COLORS.textSecondary; } }}>
               <span style={{ fontSize: "16px" }}>{item.emoji}</span>
               {item.label}
             </button>
