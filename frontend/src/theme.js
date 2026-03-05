@@ -31,4 +31,4 @@ export const COLORS = {
   gradientCard: "linear-gradient(135deg, rgba(124,58,237,0.08), rgba(99,102,241,0.04))",
 };
 
-export const API_BASE = "http://127.0.0.1:8000";
+export const API_BASE = "http://127.0.0.1:8001";

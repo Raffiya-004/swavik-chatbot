@@ -64,7 +64,37 @@ export default function App() {
     else { const title = text.length > 30 ? text.substring(0, 30) + "..." : text; const updated = conversations.map((c) => c.id === activeConvId ? { ...c, title } : c); setConversations(updated); localStorage.setItem("sw_conversations", JSON.stringify(updated)); }
   };
 
-  const handleLogin = (name) => { setUsername(name); setIsLoggedIn(true); };
+  const speakGreeting = (name) => {
+    if ("speechSynthesis" in window) {
+      window.speechSynthesis.cancel();
+      const text = `Welcome back, ${name}. Swavik A.I. systems are online and ready.`;
+      const utterance = new SpeechSynthesisUtterance(text);
+      utterance.rate = 0.95; // Slightly slower for a professional tone
+      utterance.pitch = 1.0;
+
+      const setVoice = () => {
+        const voices = window.speechSynthesis.getVoices();
+        // Prefer English voices with natural-sounding keywords
+        const preferredVoice = voices.find(v =>
+          (v.name.includes('Google') || v.name.includes('Samantha') || v.name.includes('Natural')) && v.lang.startsWith('en')
+        ) || voices.find(v => v.lang.startsWith('en'));
+
+        if (preferredVoice) utterance.voice = preferredVoice;
+        window.speechSynthesis.speak(utterance);
+      };
+
+      if (window.speechSynthesis.getVoices().length > 0) {
+        setVoice();
+      } else {
+        window.speechSynthesis.onvoiceschanged = () => {
+          setVoice();
+          window.speechSynthesis.onvoiceschanged = null;
+        };
+      }
+    }
+  };
+
+  const handleLogin = (name) => { setUsername(name); setIsLoggedIn(true); speakGreeting(name); };
   const handleLogout = () => { setIsLoggedIn(false); setUsername(""); setActiveTab("dashboard"); };
   const handleProfileChange = (e) => { const file = e.target.files[0]; if (file) { const reader = new FileReader(); reader.onload = () => { setProfileImg(reader.result); localStorage.setItem("sw_profile_img", reader.result); }; reader.readAsDataURL(file); } };
 

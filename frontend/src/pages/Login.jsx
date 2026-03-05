@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Shield, KeyRound, UserPlus, AlertCircle, CheckCircle2, Loader2 } from "lucide-react";
+import { Shield, KeyRound, UserPlus, AlertCircle, CheckCircle2, Loader2, Eye, EyeOff } from "lucide-react";
 import { COLORS } from "../theme";
 
 export default function LoginPage({ onLogin }) {
@@ -9,6 +9,7 @@ export default function LoginPage({ onLogin }) {
   const [success, setSuccess] = useState("");
   const [loading, setLoading] = useState(false);
   const [isSignUp, setIsSignUp] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
 
   const handleSubmit = () => {
     if (!username.trim() || !password.trim()) {
@@ -135,20 +136,33 @@ export default function LoginPage({ onLogin }) {
             onFocus={(e) => (e.target.style.borderColor = COLORS.purple)}
             onBlur={(e) => (e.target.style.borderColor = COLORS.border)}
           />
-          <input
-            type="password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            onKeyDown={(e) => e.key === "Enter" && handleSubmit()}
-            placeholder={isSignUp ? "🔒 Create Password (min 4 chars)" : "🔒 Password"}
-            style={{
-              width: "100%", background: COLORS.bgDark, border: `2px solid ${COLORS.border}`,
-              padding: "14px 16px", borderRadius: "14px", color: COLORS.textPrimary,
-              outline: "none", fontSize: "14px", transition: "border-color 0.2s",
-            }}
-            onFocus={(e) => (e.target.style.borderColor = COLORS.violet)}
-            onBlur={(e) => (e.target.style.borderColor = COLORS.border)}
-          />
+          <div style={{ position: "relative" }}>
+            <input
+              type={showPassword ? "text" : "password"}
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              onKeyDown={(e) => e.key === "Enter" && handleSubmit()}
+              placeholder={isSignUp ? "🔒 Create Password (min 4 chars)" : "🔒 Password"}
+              style={{
+                width: "100%", background: COLORS.bgDark, border: `2px solid ${COLORS.border}`,
+                padding: "14px 40px 14px 16px", borderRadius: "14px", color: COLORS.textPrimary,
+                outline: "none", fontSize: "14px", transition: "border-color 0.2s",
+              }}
+              onFocus={(e) => (e.target.style.borderColor = COLORS.violet)}
+              onBlur={(e) => (e.target.style.borderColor = COLORS.border)}
+            />
+            <button
+              type="button"
+              onClick={() => setShowPassword(!showPassword)}
+              style={{
+                position: "absolute", right: "12px", top: "50%", transform: "translateY(-50%)",
+                background: "transparent", border: "none", cursor: "pointer", color: COLORS.textDim,
+                display: "flex", alignItems: "center", justifyContent: "center", padding: "4px"
+              }}
+            >
+              {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+            </button>
+          </div>
         </div>
 
         {error && (
