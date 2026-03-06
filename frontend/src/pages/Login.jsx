@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
-import { Shield, KeyRound, UserPlus, AlertCircle, CheckCircle2, Loader2, Eye, EyeOff } from "lucide-react";
+import { Shield, KeyRound, UserPlus, AlertCircle, CheckCircle2, Loader2, Eye, EyeOff, X, Mail } from "lucide-react";
 import { COLORS } from "../theme";
+import { supabase, registerUser, loginUser } from "../supabaseClient";
 
 const floatingKeyframes = `
 @keyframes float {
@@ -13,9 +14,9 @@ const floatingKeyframes = `
   50% { transform: translateY(-8px); }
 }
 @keyframes pulse-ring {
-  0% { box-shadow: 0 0 0 0 rgba(124, 58, 237, 0.5); }
-  70% { box-shadow: 0 0 0 20px rgba(124, 58, 237, 0); }
-  100% { box-shadow: 0 0 0 0 rgba(124, 58, 237, 0); }
+  0% { box-shadow: 0 0 0 0 rgba(99, 102, 241, 0.5); }
+  70% { box-shadow: 0 0 0 20px rgba(99, 102, 241, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(99, 102, 241, 0); }
 }
 @keyframes slide-in-left {
   from { opacity: 0; transform: translateX(-60px); }
@@ -38,6 +39,10 @@ const floatingKeyframes = `
   0%, 80%, 100% { transform: scale(0.6); opacity: 0.4; }
   40% { transform: scale(1); opacity: 1; }
 }
+@keyframes modal-in {
+  from { opacity: 0; transform: scale(0.92) translateY(20px); }
+  to { opacity: 1; transform: scale(1) translateY(0); }
+}
 `;
 
 export default function LoginPage({ onLogin }) {
@@ -50,10 +55,13 @@ export default function LoginPage({ onLogin }) {
   const [showPassword, setShowPassword] = useState(false);
   const [rememberMe, setRememberMe] = useState(false);
   const [mounted, setMounted] = useState(false);
+  const [showGoogleModal, setShowGoogleModal] = useState(false);
+  const [googleEmail, setGoogleEmail] = useState("");
+  const [googleError, setGoogleError] = useState("");
 
   useEffect(() => { setMounted(true); }, []);
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     if (!username.trim() || !password.trim()) {
       setError("Please fill in all fields");
       setSuccess("");
@@ -68,50 +76,113 @@ export default function LoginPage({ onLogin }) {
     setError("");
     setSuccess("");
 
-    setTimeout(() => {
-      const users = JSON.parse(localStorage.getItem("sw_users") || "{}");
+    // Hardcoded admin credentials
+    const ADMIN_USERNAME = "TechSakhi";
+    const ADMIN_PASSWORD = "12345";
+
+    try {
       if (isSignUp) {
-        if (users[username]) {
-          setError("Username already taken. Try a different one or login.");
+        if (username === ADMIN_USERNAME) {
+          setError("This username is reserved. Please choose a different one.");
           setLoading(false);
           return;
         }
-        const defaultRole = username.toLowerCase() === 'admin' ? 'admin' : 'user';
-        users[username] = { password, role: defaultRole };
-        localStorage.setItem("sw_users", JSON.stringify(users));
+
+        if (supabase) {
+          // Use Supabase
+          const result = await registerUser(username, password);
+          if (result.error) {
+            setError(result.error);
+            setLoading(false);
+            return;
+          }
+        } else {
+          // Fallback to localStorage
+          const users = JSON.parse(localStorage.getItem("sw_users") || "{}");
+          if (users[username]) {
+            setError("Username already taken. Try a different one or login.");
+            setLoading(false);
+            return;
+          }
+          users[username] = { password, role: "user" };
+          localStorage.setItem("sw_users", JSON.stringify(users));
+        }
         setSuccess("Account created! Switching to login...");
         setLoading(false);
         setTimeout(() => { setIsSignUp(false); setSuccess(""); }, 1500);
       } else {
-        if (!users[username]) {
-          setError("Account not found. Please sign up first.");
-          setLoading(false);
+        // Admin login check
+        if (username === ADMIN_USERNAME) {
+          if (password !== ADMIN_PASSWORD) {
+            setError("Incorrect password. Please try again.");
+            setLoading(false);
+            return;
+          }
+          onLogin(username, "admin");
           return;
         }
-        const storedPassword = typeof users[username] === 'object' ? users[username].password : users[username];
-        const storedRole = typeof users[username] === 'object' ? users[username].role : (username.toLowerCase() === 'admin' ? 'admin' : 'user');
-        if (storedPassword !== password) {
-          setError("Incorrect password. Please try again.");
-          setLoading(false);
-          return;
+
+        if (supabase) {
+          // Use Supabase
+          const result = await loginUser(username, password);
+          if (result.error) {
+            setError(result.error);
+            setLoading(false);
+            return;
+          }
+          onLogin(result.data.username, result.data.role);
+        } else {
+          // Fallback to localStorage
+          const users = JSON.parse(localStorage.getItem("sw_users") || "{}");
+          if (!users[username]) {
+            setError("Account not found. Please sign up first.");
+            setLoading(false);
+            return;
+          }
+          const storedPassword = typeof users[username] === 'object' ? users[username].password : users[username];
+          if (storedPassword !== password) {
+            setError("Incorrect password. Please try again.");
+            setLoading(false);
+            return;
+          }
+          onLogin(username, "user");
         }
-        onLogin(username, storedRole);
       }
-    }, 800);
+    } catch (err) {
+      setError("Something went wrong. Please try again.");
+      setLoading(false);
+    }
   };
 
   const handleGoogleSignIn = () => {
+    setShowGoogleModal(true);
+    setGoogleEmail("");
+    setGoogleError("");
+  };
+
+  const handleGoogleEmailSubmit = () => {
+    const email = googleEmail.trim();
+    if (!email) {
+      setGoogleError("Please enter your email address");
+      return;
+    }
+    // Basic email validation
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      setGoogleError("Please enter a valid email address");
+      return;
+    }
     setLoading(true);
-    setError("");
+    setGoogleError("");
     setTimeout(() => {
-      const guestName = "GoogleUser_" + Math.floor(Math.random() * 1000);
       const users = JSON.parse(localStorage.getItem("sw_users") || "{}");
-      if (!users[guestName]) {
-        users[guestName] = { password: "google_oauth", role: "user" };
+      if (!users[email]) {
+        users[email] = { password: "google_oauth", role: "user" };
         localStorage.setItem("sw_users", JSON.stringify(users));
       }
-      onLogin(guestName, "user");
-    }, 1200);
+      setShowGoogleModal(false);
+      onLogin(email, "user");
+    }, 1000);
   };
 
   const toggleMode = () => {
@@ -144,7 +215,7 @@ export default function LoginPage({ onLogin }) {
             width: `${60 + i * 40}px`,
             height: `${60 + i * 40}px`,
             borderRadius: "50%",
-            background: `radial-gradient(circle, rgba(124,58,237,${0.03 + i * 0.02}) 0%, transparent 70%)`,
+            background: `radial-gradient(circle, rgba(99,102,241,${0.04 + i * 0.02}) 0%, transparent 70%)`,
             top: `${10 + i * 15}%`,
             left: `${5 + i * 18}%`,
             animation: `float ${5 + i}s ease-in-out infinite`,
@@ -152,6 +223,142 @@ export default function LoginPage({ onLogin }) {
             pointerEvents: "none",
           }} />
         ))}
+
+        {/* Google Sign-In Modal */}
+        {showGoogleModal && (
+          <div style={{
+            position: "fixed", top: 0, left: 0, right: 0, bottom: 0,
+            background: "rgba(0,0,0,0.5)", backdropFilter: "blur(6px)",
+            display: "flex", alignItems: "center", justifyContent: "center",
+            zIndex: 1000, padding: "20px",
+          }} onClick={() => { setShowGoogleModal(false); setLoading(false); }}>
+            <div style={{
+              background: "#161625", borderRadius: "24px", padding: "36px",
+              width: "100%", maxWidth: "420px",
+              boxShadow: "0 24px 80px rgba(0,0,0,0.2)",
+              border: `1px solid ${COLORS.border}`,
+              animation: "modal-in 0.3s ease-out",
+            }} onClick={(e) => e.stopPropagation()}>
+              {/* Modal Header */}
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: "24px" }}>
+                <div style={{ display: "flex", alignItems: "center", gap: "14px" }}>
+                  <svg width="28" height="28" viewBox="0 0 24 24">
+                    <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 01-2.2 3.32v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.1z" fill="#4285F4" />
+                    <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853" />
+                    <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05" />
+                    <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335" />
+                  </svg>
+                  <div>
+                    <h3 style={{ fontSize: "18px", fontWeight: 800, color: COLORS.textPrimary, marginBottom: "2px" }}>Sign in with Google</h3>
+                    <p style={{ fontSize: "12px", color: COLORS.textDim }}>to continue to Swavik AI</p>
+                  </div>
+                </div>
+                <button onClick={() => { setShowGoogleModal(false); setLoading(false); }}
+                  style={{ background: "transparent", border: "none", cursor: "pointer", color: COLORS.textMuted, padding: "4px", display: "flex" }}>
+                  <X size={20} />
+                </button>
+              </div>
+
+              {/* Email Input */}
+              <div style={{ marginBottom: "16px" }}>
+                <label style={{ fontSize: "12px", fontWeight: 700, color: COLORS.textSecondary, marginBottom: "8px", display: "block" }}>
+                  Email Address
+                </label>
+                <div style={{ position: "relative" }}>
+                  <Mail size={16} style={{ position: "absolute", left: "14px", top: "50%", transform: "translateY(-50%)", color: COLORS.textMuted }} />
+                  <input
+                    type="email"
+                    value={googleEmail}
+                    onChange={(e) => setGoogleEmail(e.target.value)}
+                    onKeyDown={(e) => e.key === "Enter" && handleGoogleEmailSubmit()}
+                    placeholder="yourname@gmail.com"
+                    autoFocus
+                    style={{
+                      width: "100%", background: COLORS.bgDark, border: `2px solid ${COLORS.border}`,
+                      padding: "13px 16px 13px 40px", borderRadius: "12px", color: COLORS.textPrimary,
+                      outline: "none", fontSize: "14px", transition: "border-color 0.2s",
+                    }}
+                    onFocus={(e) => (e.target.style.borderColor = COLORS.purple)}
+                    onBlur={(e) => (e.target.style.borderColor = COLORS.border)}
+                  />
+                </div>
+              </div>
+
+              {/* Saved Accounts (if any) */}
+              {(() => {
+                const users = JSON.parse(localStorage.getItem("sw_users") || "{}");
+                const googleAccounts = Object.keys(users).filter(k =>
+                  k.includes("@") && users[k].password === "google_oauth"
+                );
+                if (googleAccounts.length === 0) return null;
+                return (
+                  <div style={{ marginBottom: "16px" }}>
+                    <p style={{ fontSize: "11px", fontWeight: 700, color: COLORS.textDim, marginBottom: "8px", textTransform: "uppercase", letterSpacing: "0.5px" }}>
+                      Your accounts
+                    </p>
+                    <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
+                      {googleAccounts.map((email, i) => (
+                        <button key={i} onClick={() => { setGoogleEmail(email); }}
+                          style={{
+                            display: "flex", alignItems: "center", gap: "12px",
+                            padding: "10px 14px", borderRadius: "10px",
+                            background: googleEmail === email ? COLORS.bgActive : "transparent",
+                            border: googleEmail === email ? `1px solid ${COLORS.borderActive}` : `1px solid ${COLORS.border}`,
+                            cursor: "pointer", transition: "all 0.2s", width: "100%", textAlign: "left",
+                          }}
+                          onMouseEnter={(e) => { if (googleEmail !== email) e.currentTarget.style.background = COLORS.bgActive; }}
+                          onMouseLeave={(e) => { if (googleEmail !== email) e.currentTarget.style.background = "transparent"; }}>
+                          <div style={{
+                            width: "32px", height: "32px", borderRadius: "50%",
+                            background: COLORS.gradientPrimary,
+                            display: "flex", alignItems: "center", justifyContent: "center",
+                            fontSize: "13px", fontWeight: 700, color: "white",
+                          }}>
+                            {email.charAt(0).toUpperCase()}
+                          </div>
+                          <span style={{ fontSize: "13px", fontWeight: 600, color: COLORS.textPrimary }}>{email}</span>
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                );
+              })()}
+
+              {/* Google Error */}
+              {googleError && (
+                <div style={{
+                  marginBottom: "14px", padding: "10px 14px", background: "rgba(198,40,40,0.08)",
+                  border: "1px solid rgba(198,40,40,0.25)", borderRadius: "10px", color: COLORS.red,
+                  fontSize: "12px", fontWeight: 600, display: "flex", alignItems: "center", gap: "8px",
+                }}>
+                  <AlertCircle size={14} /> {googleError}
+                </div>
+              )}
+
+              {/* Continue Button */}
+              <button onClick={handleGoogleEmailSubmit} disabled={loading}
+                style={{
+                  width: "100%", padding: "13px", borderRadius: "12px",
+                  background: loading ? COLORS.bgCardHover : COLORS.gradientPrimary,
+                  border: "none", color: "white", fontSize: "14px", fontWeight: 700,
+                  cursor: loading ? "not-allowed" : "pointer",
+                  display: "flex", alignItems: "center", justifyContent: "center", gap: "8px",
+                  boxShadow: loading ? "none" : `0 6px 20px ${COLORS.purpleGlow}`,
+                  transition: "all 0.3s",
+                }}>
+                {loading ? (
+                  <><Loader2 size={16} className="animate-pulse-slow" /> Signing in...</>
+                ) : (
+                  "Continue"
+                )}
+              </button>
+
+              <p style={{ marginTop: "16px", fontSize: "10px", color: COLORS.textMuted, textAlign: "center", lineHeight: "1.5" }}>
+                By continuing, you agree to Swavik AI's Terms of Service and Privacy Policy
+              </p>
+            </div>
+          </div>
+        )}
 
         {/* Main container - split layout */}
         <div style={{
@@ -161,8 +368,8 @@ export default function LoginPage({ onLogin }) {
           minHeight: "580px",
           borderRadius: "32px",
           overflow: "hidden",
-          boxShadow: `0 30px 80px rgba(0,0,0,0.6), 0 0 120px rgba(124,58,237,0.15)`,
-          border: `1px solid rgba(124,58,237,0.2)`,
+          boxShadow: `0 30px 80px rgba(0,0,0,0.6), 0 0 120px rgba(99,102,241,0.15)`,
+          border: `1px solid rgba(99,102,241,0.2)`,
           position: "relative",
           zIndex: 1,
         }}>
@@ -182,7 +389,7 @@ export default function LoginPage({ onLogin }) {
             {/* Decorative circles */}
             <div style={{
               position: "absolute", top: "-60px", left: "-60px", width: "200px", height: "200px",
-              borderRadius: "50%", background: "rgba(124,58,237,0.15)", filter: "blur(30px)",
+              borderRadius: "50%", background: "rgba(99,102,241,0.15)", filter: "blur(30px)",
             }} />
             <div style={{
               position: "absolute", bottom: "-40px", right: "-40px", width: "160px", height: "160px",
@@ -222,7 +429,7 @@ export default function LoginPage({ onLogin }) {
             <div style={{
               animation: "float 6s ease-in-out infinite",
               marginBottom: "30px",
-              filter: "drop-shadow(0 20px 40px rgba(0,0,0,0.5))",
+              filter: "drop-shadow(0 20px 40px rgba(0,0,0,0.3))",
             }}>
               <img
                 src="/robot_mascot.png"
@@ -405,8 +612,8 @@ export default function LoginPage({ onLogin }) {
             {/* Error / Success messages */}
             {error && (
               <div style={{
-                marginTop: "12px", padding: "10px 14px", background: "rgba(239,68,68,0.1)",
-                border: "1px solid rgba(239,68,68,0.3)", borderRadius: "10px", color: COLORS.red,
+                marginTop: "12px", padding: "10px 14px", background: "rgba(198,40,40,0.08)",
+                border: "1px solid rgba(198,40,40,0.25)", borderRadius: "10px", color: COLORS.red,
                 fontSize: "12px", fontWeight: 600, display: "flex", alignItems: "center", gap: "8px",
               }}>
                 <AlertCircle size={14} /> {error}
@@ -414,8 +621,8 @@ export default function LoginPage({ onLogin }) {
             )}
             {success && (
               <div style={{
-                marginTop: "12px", padding: "10px 14px", background: "rgba(16,185,129,0.1)",
-                border: "1px solid rgba(16,185,129,0.3)", borderRadius: "10px", color: COLORS.green,
+                marginTop: "12px", padding: "10px 14px", background: "rgba(46,125,50,0.08)",
+                border: "1px solid rgba(46,125,50,0.25)", borderRadius: "10px", color: COLORS.green,
                 fontSize: "12px", fontWeight: 600, display: "flex", alignItems: "center", gap: "8px",
               }}>
                 <CheckCircle2 size={14} /> {success}

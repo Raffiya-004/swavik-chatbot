@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
-import { vscDarkPlus } from "react-syntax-highlighter/dist/esm/styles/prism";
+import { oneLight } from "react-syntax-highlighter/dist/esm/styles/prism";
 import { Copy, Check } from "lucide-react";
 import { COLORS } from "../theme";
 
@@ -24,8 +24,8 @@ export function CopyButton({ text, label = false }) {
         display: "flex", alignItems: "center", gap: "4px",
         color: copied ? COLORS.green : COLORS.textDim, fontSize: "11px", fontWeight: 600, transition: "all 0.2s",
       }}
-      onMouseEnter={(e) => { if (!copied) { e.currentTarget.style.background = COLORS.purpleSoft; e.currentTarget.style.color = COLORS.purpleLight; e.currentTarget.style.border = `1px solid ${COLORS.border}`; }}}
-      onMouseLeave={(e) => { if (!copied) { e.currentTarget.style.background = "transparent"; e.currentTarget.style.color = COLORS.textDim; e.currentTarget.style.border = "1px solid transparent"; }}}>
+      onMouseEnter={(e) => { if (!copied) { e.currentTarget.style.background = COLORS.purpleSoft; e.currentTarget.style.color = COLORS.purpleLight; e.currentTarget.style.border = `1px solid ${COLORS.border}`; } }}
+      onMouseLeave={(e) => { if (!copied) { e.currentTarget.style.background = "transparent"; e.currentTarget.style.color = COLORS.textDim; e.currentTarget.style.border = "1px solid transparent"; } }}>
       {copied ? <Check size={14} /> : <Copy size={14} />}
       {label && (copied ? "Copied!" : "Copy")}
     </button>
@@ -46,7 +46,7 @@ export function MarkdownContent({ content }) {
                   <span style={{ fontSize: "11px", fontWeight: 700, color: COLORS.purpleLight, textTransform: "uppercase", letterSpacing: "1px" }}>{match[1]}</span>
                   <CopyButton text={codeString} label={true} />
                 </div>
-                <SyntaxHighlighter style={vscDarkPlus} language={match[1]} PreTag="div"
+                <SyntaxHighlighter style={oneLight} language={match[1]} PreTag="div"
                   customStyle={{ margin: 0, padding: "16px", fontSize: "13px", background: COLORS.bgDeep }} {...props}>
                   {codeString}
                 </SyntaxHighlighter>

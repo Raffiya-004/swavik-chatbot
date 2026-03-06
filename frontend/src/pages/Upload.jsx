@@ -2,8 +2,9 @@ import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { CheckCircle2, AlertCircle, Trash2, Eye, X } from "lucide-react";
 import { COLORS, API_BASE } from "../theme";
+import { supabase, saveUploadedFile } from "../supabaseClient";
 
-export default function UploadPage({ onUploadComplete }) {
+export default function UploadPage({ onUploadComplete, userId }) {
   const [uploadStatus, setUploadStatus] = useState(null);
   const [files, setFiles] = useState([]);
   const [dragOver, setDragOver] = useState(false);
@@ -19,6 +20,14 @@ export default function UploadPage({ onUploadComplete }) {
     try {
       await axios.post(`${API_BASE}/upload`, formData);
       setUploadStatus("success");
+
+      if (supabase && userId) {
+        let fsize = (file.size / 1024).toFixed(1) + " KB";
+        if (file.size > 1024 * 1024) fsize = (file.size / (1024 * 1024)).toFixed(1) + " MB";
+        const fileExt = file.name.split('.').pop();
+        await saveUploadedFile(userId, file.name, file.type || fileExt, fsize);
+      }
+
       fetchFiles();
       if (onUploadComplete) onUploadComplete();
       setTimeout(() => setUploadStatus(null), 3000);

@@ -150,7 +150,7 @@ export default function ChatPage({ chatHistory, setChatHistory, isLoading, setIs
                     {m.role === "user" ? "👤" : "🤖"}
                   </div>
                   <div style={{ display: "flex", flexDirection: "column" }}>
-                    <div style={{ padding: "16px 20px", borderRadius: "18px", background: m.role === "user" ? COLORS.gradientPrimary : COLORS.bgCard, color: m.role === "user" ? "white" : COLORS.textSecondary, fontSize: "14px", lineHeight: "1.7", border: m.role === "bot" ? `1px solid ${COLORS.border}` : "none", boxShadow: m.role === "user" ? `0 4px 20px ${COLORS.purpleGlow}` : `0 2px 8px rgba(0,0,0,0.2)` }}>
+                    <div style={{ padding: "16px 20px", borderRadius: "18px", background: m.role === "user" ? COLORS.gradientPrimary : COLORS.bgCard, color: m.role === "user" ? "#FFF8E7" : COLORS.textSecondary, fontSize: "14px", lineHeight: "1.7", border: m.role === "bot" ? `1px solid ${COLORS.border}` : "none", boxShadow: m.role === "user" ? `0 4px 20px ${COLORS.purpleGlow}` : `0 2px 8px rgba(0,0,0,0.05)` }}>
                       {m.role === "bot" ? <MarkdownContent content={m.text} /> : m.text}
                       {m.sources && m.sources.length > 0 && (
                         <div style={{ marginTop: "12px", paddingTop: "10px", borderTop: `1px solid ${COLORS.border}`, fontSize: "10px", fontWeight: 700, color: COLORS.purpleLight, textTransform: "uppercase", letterSpacing: "1px" }}>📎 Sources: {m.sources.join(", ")}</div>
@@ -201,7 +201,7 @@ export default function ChatPage({ chatHistory, setChatHistory, isLoading, setIs
           <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "4px" }}>
             <span style={{ fontSize: "10px", color: query.length > 500 ? COLORS.red : COLORS.textMuted, fontWeight: 600 }}>{query.length}</span>
             <button onClick={handleChat} disabled={isLoading || !query.trim()}
-              style={{ background: isLoading || !query.trim() ? COLORS.bgCardHover : COLORS.gradientPrimary, color: "white", border: "none", padding: "12px 18px", borderRadius: "12px", cursor: isLoading || !query.trim() ? "not-allowed" : "pointer", display: "flex", alignItems: "center", justifyContent: "center", boxShadow: isLoading || !query.trim() ? "none" : `0 4px 16px ${COLORS.purpleGlow}`, transition: "all 0.2s" }}>
+              style={{ background: isLoading || !query.trim() ? COLORS.bgCardHover : COLORS.gradientPrimary, color: "#FFF8E7", border: "none", padding: "12px 18px", borderRadius: "12px", cursor: isLoading || !query.trim() ? "not-allowed" : "pointer", display: "flex", alignItems: "center", justifyContent: "center", boxShadow: isLoading || !query.trim() ? "none" : `0 4px 16px ${COLORS.purpleGlow}`, transition: "all 0.2s" }}>
               <Send size={18} />
             </button>
           </div>

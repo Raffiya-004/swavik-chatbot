@@ -19,9 +19,9 @@ export default function Sidebar({ activeTab, setActiveTab, username, userRole, p
     <aside style={{ width: "285px", background: COLORS.bgSidebar, borderRight: `1px solid ${COLORS.border}`, display: "flex", flexDirection: "column", padding: "24px 16px", minHeight: "100vh" }}>
       <div style={{ display: "flex", alignItems: "center", gap: "12px", marginBottom: "28px", paddingLeft: "8px" }}>
         <div className="animate-glow" style={{ width: "40px", height: "40px", background: COLORS.gradientPrimary, borderRadius: "12px", display: "flex", alignItems: "center", justifyContent: "center" }}>
-          <Zap style={{ color: "white" }} size={18} />
+          <Zap style={{ color: "#FFF8E7" }} size={18} />
         </div>
-        <span style={{ background: COLORS.gradientGlow, WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", fontWeight: 900, fontSize: "18px", letterSpacing: "1px" }}>SWAVIK.AI</span>
+        <span style={{ color: "#333333", fontWeight: 900, fontSize: "18px", letterSpacing: "1px" }}>SWAVIK.AI</span>
       </div>
 
       <div style={{ background: COLORS.gradientCard, borderRadius: "16px", padding: "14px", marginBottom: "20px", border: `1px solid ${COLORS.border}` }}>
@@ -29,12 +29,12 @@ export default function Sidebar({ activeTab, setActiveTab, username, userRole, p
           <div style={{ position: "relative" }}>
             <img src={profileImg} alt="Profile" style={{ width: "44px", height: "44px", borderRadius: "12px", objectFit: "cover", border: `2px solid ${COLORS.purple}`, padding: "2px", background: COLORS.bgCard }} />
             <label htmlFor="profile-upload" style={{ position: "absolute", bottom: "-3px", right: "-3px", width: "20px", height: "20px", background: COLORS.gradientPrimary, borderRadius: "6px", display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", border: `2px solid ${COLORS.bgSidebar}` }}>
-              <Camera size={9} style={{ color: "white" }} />
+              <Camera size={9} style={{ color: "#FFF8E7" }} />
             </label>
             <input id="profile-upload" type="file" accept="image/*" style={{ display: "none" }} onChange={onProfileChange} />
           </div>
           <div>
-            <p style={{ color: COLORS.textPrimary, fontWeight: 700, fontSize: "14px" }}>{username} 👋</p>
+            <p style={{ color: COLORS.textPrimary, fontWeight: 700, fontSize: "14px" }}>{username}</p>
             <p style={{ color: COLORS.purpleLight, fontSize: "10px", fontWeight: 700, textTransform: "uppercase", letterSpacing: "1px" }}>{userRole === 'admin' ? '🛡️ Admin' : '🟢 Online'}</p>
           </div>
         </div>
@@ -45,7 +45,7 @@ export default function Sidebar({ activeTab, setActiveTab, username, userRole, p
           const isActive = activeTab === item.id;
           return (
             <button key={item.id} onClick={() => setActiveTab(item.id)}
-              style={{ width: "100%", display: "flex", alignItems: "center", gap: "10px", padding: "12px 14px", borderRadius: "12px", border: "none", cursor: "pointer", transition: "all 0.2s", background: isActive ? COLORS.gradientPrimary : "transparent", color: isActive ? "white" : COLORS.textSecondary, fontWeight: isActive ? 700 : 500, fontSize: "13px", boxShadow: isActive ? `0 6px 20px ${COLORS.purpleGlow}` : "none" }}
+              style={{ width: "100%", display: "flex", alignItems: "center", gap: "10px", padding: "12px 14px", borderRadius: "12px", border: "none", cursor: "pointer", transition: "all 0.2s", background: isActive ? COLORS.gradientPrimary : "transparent", color: isActive ? "#FFF8E7" : COLORS.textSecondary, fontWeight: isActive ? 700 : 500, fontSize: "13px", boxShadow: isActive ? `0 6px 20px ${COLORS.purpleGlow}` : "none" }}
               onMouseEnter={(e) => { if (!isActive) { e.currentTarget.style.background = COLORS.bgActive; e.currentTarget.style.color = COLORS.purpleLight; } }}
               onMouseLeave={(e) => { if (!isActive) { e.currentTarget.style.background = "transparent"; e.currentTarget.style.color = COLORS.textSecondary; } }}>
               <span style={{ fontSize: "16px" }}>{item.emoji}</span>

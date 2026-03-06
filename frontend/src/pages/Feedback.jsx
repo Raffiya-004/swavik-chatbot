@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { COLORS } from "../theme";
 import { Star, Send, CheckCircle2, MessageSquareReply, Clock, Trash2, ChevronDown, ChevronUp } from "lucide-react";
+import { supabase, submitFeedback, loadAllFeedbacks, deleteFeedback, addReplyToFeedback, getUserId } from "../supabaseClient";
 
 export default function FeedbackPage({ username, isAdminView = false }) {
     const [rating, setRating] = useState(0);
@@ -24,31 +25,46 @@ export default function FeedbackPage({ username, isAdminView = false }) {
 
     const getCategoryInfo = (id) => categories.find((c) => c.id === id) || { label: id || "General", emoji: "💬" };
 
-    // Load feedbacks from localStorage
+    // Load feedbacks
     useEffect(() => {
-        loadFeedbacks();
+        loadFeedbacksData();
     }, []);
 
-    const loadFeedbacks = () => {
-        const stored = JSON.parse(localStorage.getItem("sw_feedback") || "[]");
-        setAllFeedbacks(stored.reverse()); // newest first
+    const loadFeedbacksData = async () => {
+        if (supabase) {
+            const data = await loadAllFeedbacks();
+            setAllFeedbacks(data.map(fb => ({
+                id: fb.id,
+                rating: fb.rating,
+                category: fb.category,
+                feedback: fb.feedback_text,
+                username: fb.username,
+                date: fb.created_at,
+                replies: fb.replies || [],
+            })));
+        } else {
+            const stored = JSON.parse(localStorage.getItem("sw_feedback") || "[]");
+            setAllFeedbacks(stored.reverse());
+        }
     };
 
-    const handleSubmit = () => {
+    const handleSubmit = async () => {
         if (!rating || !feedback.trim()) return;
-        const stored = JSON.parse(localStorage.getItem("sw_feedback") || "[]");
-        stored.push({
-            id: Date.now().toString(),
-            rating,
-            category,
-            feedback,
-            username,
-            date: new Date().toISOString(),
-            replies: [],
-        });
-        localStorage.setItem("sw_feedback", JSON.stringify(stored));
+        if (supabase) {
+            const userId = await getUserId(username);
+            await submitFeedback(userId, username, rating, category, feedback);
+        } else {
+            const stored = JSON.parse(localStorage.getItem("sw_feedback") || "[]");
+            stored.push({
+                id: Date.now().toString(),
+                rating, category, feedback, username,
+                date: new Date().toISOString(),
+                replies: [],
+            });
+            localStorage.setItem("sw_feedback", JSON.stringify(stored));
+        }
         setSubmitted(true);
-        loadFeedbacks();
+        loadFeedbacksData();
         setTimeout(() => {
             setSubmitted(false);
             setRating(0);
@@ -57,28 +73,33 @@ export default function FeedbackPage({ username, isAdminView = false }) {
         }, 2500);
     };
 
-    const handleReply = (feedbackId) => {
+    const handleReply = async (feedbackId) => {
         if (!replyText.trim()) return;
-        const stored = JSON.parse(localStorage.getItem("sw_feedback") || "[]");
-        const idx = stored.findIndex((f) => f.id === feedbackId);
-        if (idx === -1) return;
-        if (!stored[idx].replies) stored[idx].replies = [];
-        stored[idx].replies.push({
-            text: replyText,
-            admin: username,
-            date: new Date().toISOString(),
-        });
-        localStorage.setItem("sw_feedback", JSON.stringify(stored));
+        const replyObj = { text: replyText, admin: username, date: new Date().toISOString() };
+        if (supabase) {
+            await addReplyToFeedback(feedbackId, replyObj);
+        } else {
+            const stored = JSON.parse(localStorage.getItem("sw_feedback") || "[]");
+            const idx = stored.findIndex((f) => f.id === feedbackId);
+            if (idx === -1) return;
+            if (!stored[idx].replies) stored[idx].replies = [];
+            stored[idx].replies.push(replyObj);
+            localStorage.setItem("sw_feedback", JSON.stringify(stored));
+        }
         setReplyText("");
         setReplyingTo(null);
-        loadFeedbacks();
+        loadFeedbacksData();
     };
 
-    const handleDeleteFeedback = (feedbackId) => {
-        const stored = JSON.parse(localStorage.getItem("sw_feedback") || "[]");
-        const updated = stored.filter((f) => f.id !== feedbackId);
-        localStorage.setItem("sw_feedback", JSON.stringify(updated));
-        loadFeedbacks();
+    const handleDeleteFeedback = async (feedbackId) => {
+        if (supabase) {
+            await deleteFeedback(feedbackId);
+        } else {
+            const stored = JSON.parse(localStorage.getItem("sw_feedback") || "[]");
+            const updated = stored.filter((f) => f.id !== feedbackId);
+            localStorage.setItem("sw_feedback", JSON.stringify(updated));
+        }
+        loadFeedbacksData();
     };
 
     const formatDate = (iso) => {
@@ -171,7 +192,7 @@ export default function FeedbackPage({ username, isAdminView = false }) {
 
                                     {/* Submit */}
                                     <button onClick={handleSubmit} disabled={!rating || !feedback.trim()}
-                                        style={{ padding: "12px", borderRadius: "12px", border: "none", background: !rating || !feedback.trim() ? COLORS.bgCardHover : COLORS.gradientPrimary, color: "white", fontSize: "13px", fontWeight: 700, cursor: !rating || !feedback.trim() ? "not-allowed" : "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: "8px", boxShadow: !rating || !feedback.trim() ? "none" : `0 4px 16px ${COLORS.purpleGlow}`, transition: "all 0.3s", opacity: !rating || !feedback.trim() ? 0.5 : 1 }}>
+                                        style={{ padding: "12px", borderRadius: "12px", border: "none", background: !rating || !feedback.trim() ? COLORS.bgCardHover : COLORS.gradientPrimary, color: "#FFF8E7", fontSize: "13px", fontWeight: 700, cursor: !rating || !feedback.trim() ? "not-allowed" : "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: "8px", boxShadow: !rating || !feedback.trim() ? "none" : `0 4px 16px ${COLORS.purpleGlow}`, transition: "all 0.3s", opacity: !rating || !feedback.trim() ? 0.5 : 1 }}>
                                         <Send size={16} /> Submit Feedback
                                     </button>
                                 </div>
@@ -250,7 +271,7 @@ export default function FeedbackPage({ username, isAdminView = false }) {
                                                             🛡️
                                                         </div>
                                                         <span style={{ fontWeight: 700, fontSize: "12px", color: COLORS.purpleLight }}>{reply.admin}</span>
-                                                        <span style={{ fontSize: "10px", background: "rgba(124,58,237,0.15)", color: COLORS.purpleLight, padding: "2px 8px", borderRadius: "6px", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.5px" }}>Admin</span>
+                                                        <span style={{ fontSize: "10px", background: "rgba(212,160,23,0.12)", color: COLORS.purpleLight, padding: "2px 8px", borderRadius: "6px", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.5px" }}>Admin</span>
                                                         <span style={{ fontSize: "10px", color: COLORS.textMuted, display: "flex", alignItems: "center", gap: "3px" }}>
                                                             <Clock size={9} /> {formatDate(reply.date)}
                                                         </span>
@@ -274,7 +295,7 @@ export default function FeedbackPage({ username, isAdminView = false }) {
                                                 onFocus={(e) => e.target.style.borderColor = COLORS.purple}
                                                 onBlur={(e) => e.target.style.borderColor = COLORS.border} />
                                             <button onClick={() => handleReply(fb.id || fb.date)} disabled={!replyText.trim()}
-                                                style={{ background: !replyText.trim() ? COLORS.bgCardHover : COLORS.gradientPrimary, border: "none", borderRadius: "10px", padding: "10px 16px", cursor: !replyText.trim() ? "not-allowed" : "pointer", color: "white", display: "flex", alignItems: "center", gap: "6px", fontSize: "12px", fontWeight: 700, boxShadow: !replyText.trim() ? "none" : `0 4px 12px ${COLORS.purpleGlow}`, transition: "all 0.2s", opacity: !replyText.trim() ? 0.5 : 1, flexShrink: 0 }}>
+                                                style={{ background: !replyText.trim() ? COLORS.bgCardHover : COLORS.gradientPrimary, border: "none", borderRadius: "10px", padding: "10px 16px", cursor: !replyText.trim() ? "not-allowed" : "pointer", color: "#FFF8E7", display: "flex", alignItems: "center", gap: "6px", fontSize: "12px", fontWeight: 700, boxShadow: !replyText.trim() ? "none" : `0 4px 12px ${COLORS.purpleGlow}`, transition: "all 0.2s", opacity: !replyText.trim() ? 0.5 : 1, flexShrink: 0 }}>
                                                 <Send size={14} /> Reply
                                             </button>
                                         </div>

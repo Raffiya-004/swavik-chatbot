@@ -8,8 +8,8 @@
 
 body {
   font-family: 'Plus Jakarta Sans', sans-serif;
-  background: #0a0a0f;
-  color: #e8e4f0;
+  background: #FFF8E7;
+  color: #333333;
   overflow: hidden;
 }
 
@@ -18,55 +18,105 @@ body {
   width: 100vw;
 }
 
-/* Dark Purple Scrollbar */
+/* Elegant Scrollbar */
 ::-webkit-scrollbar {
   width: 6px;
 }
+
 ::-webkit-scrollbar-track {
   background: transparent;
 }
+
 ::-webkit-scrollbar-thumb {
-  background: #3d2a6e;
+  background: #D4A017;
   border-radius: 10px;
 }
+
 ::-webkit-scrollbar-thumb:hover {
-  background: #7c3aed;
+  background: #B8860B;
 }
 
 /* Animations */
 @keyframes fadeIn {
-  from { opacity: 0; transform: translateY(10px); }
-  to { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 @keyframes slideUp {
-  from { opacity: 0; transform: translateY(20px); }
-  to { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 @keyframes slideRight {
-  from { opacity: 0; transform: translateX(-20px); }
-  to { opacity: 1; transform: translateX(0); }
+  from {
+    opacity: 0;
+    transform: translateX(-20px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
 }
 
 @keyframes pulse {
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0.5; }
+
+  0%,
+  100% {
+    opacity: 1;
+  }
+
+  50% {
+    opacity: 0.5;
+  }
 }
 
 @keyframes bounce {
-  0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(-5px); }
+
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+
+  50% {
+    transform: translateY(-5px);
+  }
 }
 
 @keyframes glow {
-  0%, 100% { box-shadow: 0 0 20px rgba(124, 58, 237, 0.3); }
-  50% { box-shadow: 0 0 40px rgba(124, 58, 237, 0.5); }
+
+  0%,
+  100% {
+    box-shadow: 0 0 20px rgba(212, 160, 23, 0.2);
+  }
+
+  50% {
+    box-shadow: 0 0 40px rgba(212, 160, 23, 0.35);
+  }
 }
 
 @keyframes shimmer {
-  0% { background-position: -200% center; }
-  100% { background-position: 200% center; }
+  0% {
+    background-position: -200% center;
+  }
+
+  100% {
+    background-position: 200% center;
+  }
 }
 
 .animate-fade-in {
@@ -93,24 +143,37 @@ body {
   animation: glow 3s ease-in-out infinite;
 }
 
-/* Typing Dots - Neon Purple */
+/* Typing Dots - Mustard Yellow */
 .typing-dot {
   width: 8px;
   height: 8px;
   border-radius: 50%;
-  background: #7c3aed;
+  background: #D4A017;
   display: inline-block;
   margin: 0 2px;
   animation: bounce 1.4s ease-in-out infinite;
-  box-shadow: 0 0 8px rgba(124, 58, 237, 0.5);
+  box-shadow: 0 0 8px rgba(212, 160, 23, 0.4);
 }
-.typing-dot:nth-child(2) { animation-delay: 0.2s; }
-.typing-dot:nth-child(3) { animation-delay: 0.4s; }
+
+.typing-dot:nth-child(2) {
+  animation-delay: 0.2s;
+}
+
+.typing-dot:nth-child(3) {
+  animation-delay: 0.4s;
+}
 
 /* Mic Recording Pulse */
 @keyframes micPulse {
-  0%, 100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.4); }
-  50% { box-shadow: 0 0 0 10px rgba(239, 68, 68, 0); }
+
+  0%,
+  100% {
+    box-shadow: 0 0 0 0 rgba(198, 40, 40, 0.4);
+  }
+
+  50% {
+    box-shadow: 0 0 0 10px rgba(198, 40, 40, 0);
+  }
 }
 
 .mic-recording {
@@ -120,7 +183,7 @@ body {
 /* Input & Textarea */
 input::placeholder,
 textarea::placeholder {
-  color: #6b5b8a;
+  color: #AAAAAA;
 }
 
 textarea {
@@ -129,14 +192,14 @@ textarea {
 
 /* Selection */
 ::selection {
-  background: rgba(124, 58, 237, 0.4);
-  color: #fff;
+  background: rgba(212, 160, 23, 0.3);
+  color: #333333;
 }
 
 /* Focus */
 button:focus-visible,
 input:focus-visible,
 textarea:focus-visible {
-  outline: 2px solid #7c3aed;
+  outline: 2px solid #D4A017;
   outline-offset: 2px;
 }
