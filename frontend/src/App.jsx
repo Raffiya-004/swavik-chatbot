@@ -15,6 +15,7 @@ import FeedbackPage from "./pages/Feedback";
 export default function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [username, setUsername] = useState("");
+  const [userRole, setUserRole] = useState("user");
   const [activeTab, setActiveTab] = useState("dashboard");
   const [profileImg, setProfileImg] = useState("https://api.dicebear.com/7.x/avataaars/svg?seed=Lucky");
   const [stats, setStats] = useState({ total_docs: 0, queries: 0, accuracy: 0, chart_data: [] });
@@ -29,6 +30,7 @@ export default function App() {
     if (isLoggedIn) {
       fetchStats();
       const savedImg = localStorage.getItem("sw_profile_img"); if (savedImg) setProfileImg(savedImg);
+      const savedRole = localStorage.getItem("sw_user_role"); if (savedRole) setUserRole(savedRole);
       const savedConvs = JSON.parse(localStorage.getItem("sw_conversations") || "[]");
       setConversations(savedConvs);
       if (savedConvs.length > 0) { setActiveConvId(savedConvs[0].id); setChatHistory(savedConvs[0].messages || []); }
@@ -94,8 +96,14 @@ export default function App() {
     }
   };
 
-  const handleLogin = (name) => { setUsername(name); setIsLoggedIn(true); speakGreeting(name); };
-  const handleLogout = () => { setIsLoggedIn(false); setUsername(""); setActiveTab("dashboard"); };
+  const handleLogin = (name, role = 'user') => {
+    setUsername(name);
+    setUserRole(role);
+    localStorage.setItem("sw_user_role", role);
+    setIsLoggedIn(true);
+    speakGreeting(name);
+  };
+  const handleLogout = () => { setIsLoggedIn(false); setUsername(""); setUserRole("user"); setActiveTab("dashboard"); };
   const handleProfileChange = (e) => { const file = e.target.files[0]; if (file) { const reader = new FileReader(); reader.onload = () => { setProfileImg(reader.result); localStorage.setItem("sw_profile_img", reader.result); }; reader.readAsDataURL(file); } };
 
   if (!isLoggedIn) return <LoginPage onLogin={handleLogin} />;
@@ -103,7 +111,7 @@ export default function App() {
   return (
     <div style={{ display: "flex", height: "100vh", overflow: "hidden" }}>
       <Sidebar activeTab={activeTab} setActiveTab={(tab) => { setActiveTab(tab); if (tab === "chat" && !activeConvId) handleNewChat(); }}
-        username={username} profileImg={profileImg} onProfileChange={handleProfileChange} onLogout={handleLogout}
+        username={username} userRole={userRole} profileImg={profileImg} onProfileChange={handleProfileChange} onLogout={handleLogout}
         conversations={conversations} activeConvId={activeConvId} onNewChat={handleNewChat} onSelectConv={handleSelectConv} onDeleteConv={handleDeleteConv} />
       <main style={{ flex: 1, overflowY: "auto", padding: "40px", background: COLORS.gradientBg }}>
         {activeTab === "dashboard" && <DashboardPage stats={stats} username={username} />}
@@ -111,6 +119,7 @@ export default function App() {
         {activeTab === "upload" && <UploadPage onUploadComplete={fetchStats} />}
         {activeTab === "analytics" && <AnalyticsPage stats={stats} />}
         {activeTab === "feedback" && <FeedbackPage username={username} />}
+        {activeTab === "admin-feedbacks" && <FeedbackPage username={username} isAdminView={true} />}
       </main>
     </div>
   );

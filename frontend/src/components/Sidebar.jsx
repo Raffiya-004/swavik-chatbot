@@ -2,7 +2,7 @@ import React from "react";
 import { LogOut, Zap, Camera, Plus, MessageCircle, X } from "lucide-react";
 import { COLORS } from "../theme";
 
-export default function Sidebar({ activeTab, setActiveTab, username, profileImg, onProfileChange, onLogout, conversations, activeConvId, onNewChat, onSelectConv, onDeleteConv }) {
+export default function Sidebar({ activeTab, setActiveTab, username, userRole, profileImg, onProfileChange, onLogout, conversations, activeConvId, onNewChat, onSelectConv, onDeleteConv }) {
   const navItems = [
     { id: "dashboard", label: "Dashboard", emoji: "📊" },
     { id: "chat", label: "RAG Chatbot", emoji: "🤖" },
@@ -10,6 +10,10 @@ export default function Sidebar({ activeTab, setActiveTab, username, profileImg,
     { id: "analytics", label: "Analytics", emoji: "📈" },
     { id: "feedback", label: "Feedback", emoji: "💬" },
   ];
+
+  if (userRole === "admin") {
+    navItems.push({ id: "admin-feedbacks", label: "All Feedbacks (Admin)", emoji: "🛡️" });
+  }
 
   return (
     <aside style={{ width: "285px", background: COLORS.bgSidebar, borderRight: `1px solid ${COLORS.border}`, display: "flex", flexDirection: "column", padding: "24px 16px", minHeight: "100vh" }}>
@@ -31,7 +35,7 @@ export default function Sidebar({ activeTab, setActiveTab, username, profileImg,
           </div>
           <div>
             <p style={{ color: COLORS.textPrimary, fontWeight: 700, fontSize: "14px" }}>{username} 👋</p>
-            <p style={{ color: COLORS.green, fontSize: "10px", fontWeight: 700, textTransform: "uppercase", letterSpacing: "1px" }}>🟢 Online</p>
+            <p style={{ color: COLORS.purpleLight, fontSize: "10px", fontWeight: 700, textTransform: "uppercase", letterSpacing: "1px" }}>{userRole === 'admin' ? '🛡️ Admin' : '🟢 Online'}</p>
           </div>
         </div>
       </div>

@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { COLORS } from "../theme";
 import { Star, Send, CheckCircle2, MessageSquareReply, Clock, Trash2, ChevronDown, ChevronUp } from "lucide-react";
 
-export default function FeedbackPage({ username }) {
+export default function FeedbackPage({ username, isAdminView = false }) {
     const [rating, setRating] = useState(0);
     const [hoverRating, setHoverRating] = useState(0);
     const [category, setCategory] = useState("");
@@ -11,7 +11,7 @@ export default function FeedbackPage({ username }) {
     const [allFeedbacks, setAllFeedbacks] = useState([]);
     const [replyingTo, setReplyingTo] = useState(null);
     const [replyText, setReplyText] = useState("");
-    const [showForm, setShowForm] = useState(true);
+    const [showForm, setShowForm] = useState(!isAdminView);
 
     const categories = [
         { id: "general", label: "General", emoji: "💬" },
@@ -98,81 +98,87 @@ export default function FeedbackPage({ username }) {
 
     return (
         <div className="animate-slide-up" style={{ maxWidth: "700px", margin: "0 auto", paddingBottom: "40px" }}>
-            <h2 style={{ fontSize: "28px", fontWeight: 800, color: COLORS.textPrimary, marginBottom: "8px" }}>💬 Feedback</h2>
+            <h2 style={{ fontSize: "28px", fontWeight: 800, color: COLORS.textPrimary, marginBottom: "8px" }}>
+                {isAdminView ? "🛡️ Admin Feedbacks Inbox" : "💬 Feedback"}
+            </h2>
             <p style={{ color: COLORS.textDim, marginBottom: "32px", fontSize: "14px" }}>
-                Help us improve Swavik AI — your feedback matters! ✨
+                {isAdminView ? "Manage and reply to employee feedback here." : "Help us improve Swavik AI — your feedback matters! ✨"}
             </p>
 
-            {/* Collapsible Feedback Form */}
-            <button onClick={() => setShowForm(!showForm)}
-                style={{ width: "100%", display: "flex", alignItems: "center", justifyContent: "space-between", padding: "16px 20px", borderRadius: "16px", border: `1px solid ${COLORS.border}`, background: COLORS.bgCard, cursor: "pointer", marginBottom: showForm ? "0" : "28px", borderBottomLeftRadius: showForm ? 0 : "16px", borderBottomRightRadius: showForm ? 0 : "16px", transition: "all 0.2s" }}
-                onMouseEnter={(e) => e.currentTarget.style.background = COLORS.bgCardHover}
-                onMouseLeave={(e) => e.currentTarget.style.background = COLORS.bgCard}>
-                <span style={{ fontSize: "15px", fontWeight: 700, color: COLORS.textPrimary }}>✍️ Write New Feedback</span>
-                {showForm ? <ChevronUp size={18} style={{ color: COLORS.textMuted }} /> : <ChevronDown size={18} style={{ color: COLORS.textMuted }} />}
-            </button>
+            {/* Collapsible Feedback Form (Hidden for Admins) */}
+            {!isAdminView && (
+                <>
+                    <button onClick={() => setShowForm(!showForm)}
+                        style={{ width: "100%", display: "flex", alignItems: "center", justifyContent: "space-between", padding: "16px 20px", borderRadius: "16px", border: `1px solid ${COLORS.border}`, background: COLORS.bgCard, cursor: "pointer", marginBottom: showForm ? "0" : "28px", borderBottomLeftRadius: showForm ? 0 : "16px", borderBottomRightRadius: showForm ? 0 : "16px", transition: "all 0.2s" }}
+                        onMouseEnter={(e) => e.currentTarget.style.background = COLORS.bgCardHover}
+                        onMouseLeave={(e) => e.currentTarget.style.background = COLORS.bgCard}>
+                        <span style={{ fontSize: "15px", fontWeight: 700, color: COLORS.textPrimary }}>✍️ Write New Feedback</span>
+                        {showForm ? <ChevronUp size={18} style={{ color: COLORS.textMuted }} /> : <ChevronDown size={18} style={{ color: COLORS.textMuted }} />}
+                    </button>
 
-            {showForm && (
-                <div style={{ background: COLORS.bgCard, borderBottomLeftRadius: "16px", borderBottomRightRadius: "16px", border: `1px solid ${COLORS.border}`, borderTop: "none", padding: "24px", marginBottom: "28px" }}>
-                    {submitted ? (
-                        <div className="animate-slide-up" style={{ padding: "40px 20px", textAlign: "center" }}>
-                            <CheckCircle2 size={36} style={{ color: COLORS.green, marginBottom: "12px" }} />
-                            <h3 style={{ fontSize: "18px", fontWeight: 800, color: COLORS.textPrimary, marginBottom: "6px" }}>Thank you! 🎉</h3>
-                            <p style={{ color: COLORS.textDim, fontSize: "13px" }}>Your feedback has been recorded.</p>
-                        </div>
-                    ) : (
-                        <div style={{ display: "flex", flexDirection: "column", gap: "20px" }}>
-                            {/* Rating */}
-                            <div>
-                                <p style={{ fontSize: "13px", fontWeight: 700, color: COLORS.textSecondary, marginBottom: "12px" }}>Rating ⭐</p>
-                                <div style={{ display: "flex", gap: "6px" }}>
-                                    {[1, 2, 3, 4, 5].map((star) => (
-                                        <button key={star} onClick={() => setRating(star)}
-                                            onMouseEnter={() => setHoverRating(star)}
-                                            onMouseLeave={() => setHoverRating(0)}
-                                            style={{ background: "none", border: "none", cursor: "pointer", padding: "4px", transition: "transform 0.2s", transform: (hoverRating || rating) >= star ? "scale(1.15)" : "scale(1)" }}>
-                                            <Star size={28} fill={(hoverRating || rating) >= star ? "#f59e0b" : "transparent"}
-                                                style={{ color: (hoverRating || rating) >= star ? "#f59e0b" : COLORS.textMuted, transition: "all 0.2s" }} />
-                                        </button>
-                                    ))}
+                    {showForm && (
+                        <div style={{ background: COLORS.bgCard, borderBottomLeftRadius: "16px", borderBottomRightRadius: "16px", border: `1px solid ${COLORS.border}`, borderTop: "none", padding: "24px", marginBottom: "28px" }}>
+                            {submitted ? (
+                                <div className="animate-slide-up" style={{ padding: "40px 20px", textAlign: "center" }}>
+                                    <CheckCircle2 size={36} style={{ color: COLORS.green, marginBottom: "12px" }} />
+                                    <h3 style={{ fontSize: "18px", fontWeight: 800, color: COLORS.textPrimary, marginBottom: "6px" }}>Thank you! 🎉</h3>
+                                    <p style={{ color: COLORS.textDim, fontSize: "13px" }}>Your feedback has been recorded.</p>
                                 </div>
-                            </div>
+                            ) : (
+                                <div style={{ display: "flex", flexDirection: "column", gap: "20px" }}>
+                                    {/* Rating */}
+                                    <div>
+                                        <p style={{ fontSize: "13px", fontWeight: 700, color: COLORS.textSecondary, marginBottom: "12px" }}>Rating ⭐</p>
+                                        <div style={{ display: "flex", gap: "6px" }}>
+                                            {[1, 2, 3, 4, 5].map((star) => (
+                                                <button key={star} onClick={() => setRating(star)}
+                                                    onMouseEnter={() => setHoverRating(star)}
+                                                    onMouseLeave={() => setHoverRating(0)}
+                                                    style={{ background: "none", border: "none", cursor: "pointer", padding: "4px", transition: "transform 0.2s", transform: (hoverRating || rating) >= star ? "scale(1.15)" : "scale(1)" }}>
+                                                    <Star size={28} fill={(hoverRating || rating) >= star ? "#f59e0b" : "transparent"}
+                                                        style={{ color: (hoverRating || rating) >= star ? "#f59e0b" : COLORS.textMuted, transition: "all 0.2s" }} />
+                                                </button>
+                                            ))}
+                                        </div>
+                                    </div>
 
-                            {/* Category */}
-                            <div>
-                                <p style={{ fontSize: "13px", fontWeight: 700, color: COLORS.textSecondary, marginBottom: "12px" }}>Category 🏷️</p>
-                                <div style={{ display: "flex", flexWrap: "wrap", gap: "8px" }}>
-                                    {categories.map((cat) => (
-                                        <button key={cat.id} onClick={() => setCategory(cat.id)}
-                                            style={{ padding: "8px 14px", borderRadius: "10px", border: category === cat.id ? `2px solid ${COLORS.purple}` : `1px solid ${COLORS.border}`, background: category === cat.id ? COLORS.bgActive : "transparent", cursor: "pointer", transition: "all 0.2s", display: "flex", alignItems: "center", gap: "6px" }}
-                                            onMouseEnter={(e) => { if (category !== cat.id) e.currentTarget.style.background = COLORS.bgCardHover; }}
-                                            onMouseLeave={(e) => { if (category !== cat.id) e.currentTarget.style.background = "transparent"; }}>
-                                            <span style={{ fontSize: "13px" }}>{cat.emoji}</span>
-                                            <span style={{ fontSize: "11px", fontWeight: category === cat.id ? 700 : 500, color: category === cat.id ? COLORS.purpleLight : COLORS.textSecondary }}>{cat.label}</span>
-                                        </button>
-                                    ))}
+                                    {/* Category */}
+                                    <div>
+                                        <p style={{ fontSize: "13px", fontWeight: 700, color: COLORS.textSecondary, marginBottom: "12px" }}>Category 🏷️</p>
+                                        <div style={{ display: "flex", flexWrap: "wrap", gap: "8px" }}>
+                                            {categories.map((cat) => (
+                                                <button key={cat.id} onClick={() => setCategory(cat.id)}
+                                                    style={{ padding: "8px 14px", borderRadius: "10px", border: category === cat.id ? `2px solid ${COLORS.purple}` : `1px solid ${COLORS.border}`, background: category === cat.id ? COLORS.bgActive : "transparent", cursor: "pointer", transition: "all 0.2s", display: "flex", alignItems: "center", gap: "6px" }}
+                                                    onMouseEnter={(e) => { if (category !== cat.id) e.currentTarget.style.background = COLORS.bgCardHover; }}
+                                                    onMouseLeave={(e) => { if (category !== cat.id) e.currentTarget.style.background = "transparent"; }}>
+                                                    <span style={{ fontSize: "13px" }}>{cat.emoji}</span>
+                                                    <span style={{ fontSize: "11px", fontWeight: category === cat.id ? 700 : 500, color: category === cat.id ? COLORS.purpleLight : COLORS.textSecondary }}>{cat.label}</span>
+                                                </button>
+                                            ))}
+                                        </div>
+                                    </div>
+
+                                    {/* Message */}
+                                    <div>
+                                        <p style={{ fontSize: "13px", fontWeight: 700, color: COLORS.textSecondary, marginBottom: "12px" }}>Your Feedback ✍️</p>
+                                        <textarea value={feedback} onChange={(e) => setFeedback(e.target.value)}
+                                            placeholder="Share your thoughts, suggestions, or report issues..."
+                                            rows={4}
+                                            style={{ width: "100%", background: COLORS.bgDark, border: `1px solid ${COLORS.border}`, borderRadius: "12px", padding: "14px", color: COLORS.textPrimary, fontSize: "13px", resize: "vertical", outline: "none", fontFamily: "inherit", lineHeight: "1.6", transition: "border-color 0.2s" }}
+                                            onFocus={(e) => e.target.style.borderColor = COLORS.purple}
+                                            onBlur={(e) => e.target.style.borderColor = COLORS.border} />
+                                    </div>
+
+                                    {/* Submit */}
+                                    <button onClick={handleSubmit} disabled={!rating || !feedback.trim()}
+                                        style={{ padding: "12px", borderRadius: "12px", border: "none", background: !rating || !feedback.trim() ? COLORS.bgCardHover : COLORS.gradientPrimary, color: "white", fontSize: "13px", fontWeight: 700, cursor: !rating || !feedback.trim() ? "not-allowed" : "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: "8px", boxShadow: !rating || !feedback.trim() ? "none" : `0 4px 16px ${COLORS.purpleGlow}`, transition: "all 0.3s", opacity: !rating || !feedback.trim() ? 0.5 : 1 }}>
+                                        <Send size={16} /> Submit Feedback
+                                    </button>
                                 </div>
-                            </div>
-
-                            {/* Message */}
-                            <div>
-                                <p style={{ fontSize: "13px", fontWeight: 700, color: COLORS.textSecondary, marginBottom: "12px" }}>Your Feedback ✍️</p>
-                                <textarea value={feedback} onChange={(e) => setFeedback(e.target.value)}
-                                    placeholder="Share your thoughts, suggestions, or report issues..."
-                                    rows={4}
-                                    style={{ width: "100%", background: COLORS.bgDark, border: `1px solid ${COLORS.border}`, borderRadius: "12px", padding: "14px", color: COLORS.textPrimary, fontSize: "13px", resize: "vertical", outline: "none", fontFamily: "inherit", lineHeight: "1.6", transition: "border-color 0.2s" }}
-                                    onFocus={(e) => e.target.style.borderColor = COLORS.purple}
-                                    onBlur={(e) => e.target.style.borderColor = COLORS.border} />
-                            </div>
-
-                            {/* Submit */}
-                            <button onClick={handleSubmit} disabled={!rating || !feedback.trim()}
-                                style={{ padding: "12px", borderRadius: "12px", border: "none", background: !rating || !feedback.trim() ? COLORS.bgCardHover : COLORS.gradientPrimary, color: "white", fontSize: "13px", fontWeight: 700, cursor: !rating || !feedback.trim() ? "not-allowed" : "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: "8px", boxShadow: !rating || !feedback.trim() ? "none" : `0 4px 16px ${COLORS.purpleGlow}`, transition: "all 0.3s", opacity: !rating || !feedback.trim() ? 0.5 : 1 }}>
-                                <Send size={16} /> Submit Feedback
-                            </button>
+                            )}
                         </div>
                     )}
-                </div>
+                </>
             )}
 
             {/* All Feedbacks Section */}
@@ -214,22 +220,24 @@ export default function FeedbackPage({ username }) {
                                                 </div>
                                             </div>
                                         </div>
-                                        <div style={{ display: "flex", gap: "4px", flexShrink: 0 }}>
-                                            <button onClick={() => { setReplyingTo(replyingTo === fb.id ? null : fb.id); setReplyText(""); }}
-                                                title="Reply"
-                                                style={{ background: replyingTo === fb.id ? COLORS.bgActive : "transparent", border: replyingTo === fb.id ? `1px solid ${COLORS.border}` : "1px solid transparent", borderRadius: "8px", padding: "6px", cursor: "pointer", color: replyingTo === fb.id ? COLORS.purpleLight : COLORS.textMuted, display: "flex", transition: "all 0.2s" }}
-                                                onMouseEnter={(e) => e.currentTarget.style.color = COLORS.purpleLight}
-                                                onMouseLeave={(e) => { if (replyingTo !== fb.id) e.currentTarget.style.color = COLORS.textMuted; }}>
-                                                <MessageSquareReply size={16} />
-                                            </button>
-                                            <button onClick={() => handleDeleteFeedback(fb.id)}
-                                                title="Delete"
-                                                style={{ background: "transparent", border: "1px solid transparent", borderRadius: "8px", padding: "6px", cursor: "pointer", color: COLORS.textMuted, display: "flex", transition: "all 0.2s" }}
-                                                onMouseEnter={(e) => e.currentTarget.style.color = COLORS.red}
-                                                onMouseLeave={(e) => e.currentTarget.style.color = COLORS.textMuted}>
-                                                <Trash2 size={14} />
-                                            </button>
-                                        </div>
+                                        {isAdminView && (
+                                            <div style={{ display: "flex", gap: "4px", flexShrink: 0 }}>
+                                                <button onClick={() => { setReplyingTo(replyingTo === fb.id ? null : fb.id); setReplyText(""); }}
+                                                    title="Reply"
+                                                    style={{ background: replyingTo === fb.id ? COLORS.bgActive : "transparent", border: replyingTo === fb.id ? `1px solid ${COLORS.border}` : "1px solid transparent", borderRadius: "8px", padding: "6px", cursor: "pointer", color: replyingTo === fb.id ? COLORS.purpleLight : COLORS.textMuted, display: "flex", transition: "all 0.2s" }}
+                                                    onMouseEnter={(e) => e.currentTarget.style.color = COLORS.purpleLight}
+                                                    onMouseLeave={(e) => { if (replyingTo !== fb.id) e.currentTarget.style.color = COLORS.textMuted; }}>
+                                                    <MessageSquareReply size={16} />
+                                                </button>
+                                                <button onClick={() => handleDeleteFeedback(fb.id)}
+                                                    title="Delete"
+                                                    style={{ background: "transparent", border: "1px solid transparent", borderRadius: "8px", padding: "6px", cursor: "pointer", color: COLORS.textMuted, display: "flex", transition: "all 0.2s" }}
+                                                    onMouseEnter={(e) => e.currentTarget.style.color = COLORS.red}
+                                                    onMouseLeave={(e) => e.currentTarget.style.color = COLORS.textMuted}>
+                                                    <Trash2 size={14} />
+                                                </button>
+                                            </div>
+                                        )}
                                     </div>
 
                                     {/* Existing Replies */}
